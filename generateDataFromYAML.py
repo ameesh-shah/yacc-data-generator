@@ -13,9 +13,10 @@ filled the spaces where probabilities should go. These should all be numbers les
 to 1! If your probabilties are wrong or unfilled, this program will break down.
 Like the previous program, the command line usage will take two arguments. The first will take in
 the modified YAML file, and the second will be the number of symbols that you want to produce
-from the pseudo-random data generation. Example:
+from the pseudo-random data generation. The third will be the out file for the text that will be
+produced. Example:
 
-python generateDataFromYAML.py "myModifiedYAML.yaml" 10000
+python generateDataFromYAML.py "myModifiedYAML.yaml" 10000 "textfile.txt"
 
 Best of luck!
 
@@ -126,7 +127,7 @@ class CFG:
         while sampledRHS:
             if self.is_token(sampledRHS[0]):
                 sampledToken = self.sample_token(sampledRHS[0])
-                sentence += sampledToken.__str__()
+                sentence += str(sampledToken)
                 sampledRHS.remove(sampledRHS[0])
             elif sampledRHS[0] in self.lhs:
                 temptemp = []
@@ -134,7 +135,7 @@ class CFG:
                 sampledRHS.remove(sampledRHS[0])
                 sampledRHS = temptemp + sampledRHS
             else:
-                sentence += sampledRHS[0].__str__()
+                sentence += str(sampledRHS[0])
                 sampledRHS.remove(sampledRHS[0])
         sentence = "".join(sentence)
         return sentence
@@ -158,7 +159,7 @@ def read_yaml_file(yamlfile):
             yamldict = yaml.safe_load(stream)
             return yamldict
         except yaml.YAMLError as exc:
-            print("EXC" + exc.__str__())
+            print("EXC" + str(exc))
 
 
 def createCFG(masterdict):
@@ -198,16 +199,28 @@ def createCFG(masterdict):
     return myCFG
 
 
-
+# masterdict = read_yaml_file("language.yaml")
+# myCFG = createCFG(masterdict)
+# sentence = myCFG.gen_min_symbols(1000)
+# text_file = open("mathStackD2Testing.txt", "w")
+# text_file.write(sentence.replace('\\n', '\n'))
+# text_file.close()
 
 if __name__ == "__main__":
     #get arguments from command line
     arguments = sys.argv
     yamlfile = arguments[1]
     numsymbols = arguments[2]
+    textFileName = arguments[3] #"cLanguageGen.txt"
+
+	#myCFG.printz()
+
     #create dictionary from yaml which will fill up the CFG
     masterdict = read_yaml_file(yamlfile)
     #create the CFG with tokens, LHS and RHS rules from dictionary
     myCFG = createCFG(masterdict)
     # generate the min symbols by sampling from the probability distributions
-    myCFG.gen_min_symbols(numsymbols)
+    sentence = myCFG.gen_min_symbols(numsymbols)
+    text_file = open(textFileName, "w")
+    text_file.write(sentence.replace('\\n', '\n'))
+    text_file.close()
